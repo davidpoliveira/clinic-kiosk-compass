@@ -1,6 +1,6 @@
 
-import React, { useState, useEffect } from "react";
-import { Loader } from "lucide-react";
+import React, { useState, useEffect, useRef } from "react";
+import { Loader, Camera, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 
@@ -15,8 +15,57 @@ const FacialRecognition: React.FC<FacialRecognitionProps> = ({
 }) => {
   const [scanning, setScanning] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [cameraActive, setCameraActive] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
   const { toast } = useToast();
 
+  // Handle camera initialization
+  const initializeCamera = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        video: { 
+          facingMode: "user",
+          width: { ideal: 640 },
+          height: { ideal: 480 }
+        }
+      });
+      
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+        streamRef.current = stream;
+        setCameraActive(true);
+      }
+    } catch (error) {
+      console.error("Error accessing camera:", error);
+      toast({
+        title: "Camera error",
+        description: "Could not access camera. Please allow camera permissions.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  // Stop camera stream
+  const stopCamera = () => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop());
+      streamRef.current = null;
+      setCameraActive(false);
+    }
+  };
+
+  // Start the facial scanning process
+  const startScan = () => {
+    if (!cameraActive) {
+      initializeCamera();
+    }
+    
+    setProgress(0);
+    setScanning(true);
+  };
+
+  // Handle scan simulation
   useEffect(() => {
     if (scanning) {
       const simulateScan = () => {
@@ -43,27 +92,38 @@ const FacialRecognition: React.FC<FacialRecognitionProps> = ({
     }
   }, [scanning, onComplete, toast]);
 
-  const startScan = () => {
-    setProgress(0);
-    setScanning(true);
+  // Clean up camera on unmount
+  useEffect(() => {
+    return () => {
+      stopCamera();
+    };
+  }, []);
+
+  const handleCancel = () => {
+    setScanning(false);
+    stopCamera();
+    onCancel();
   };
 
   return (
     <div className="flex flex-col items-center">
       <div className="relative mb-8">
-        <div className={`w-64 h-64 md:w-80 md:h-80 rounded-full bg-gray-200 relative overflow-hidden border-4 ${scanning ? 'border-kiosk-blue animate-pulse' : 'border-gray-300'}`}>
-          {/* Camera outline */}
-          <svg 
-            viewBox="0 0 24 24" 
-            fill="none" 
-            stroke="currentColor" 
-            strokeWidth="1" 
-            strokeLinecap="round" 
-            strokeLinejoin="round" 
-            className="h-full w-full p-8 text-gray-400"
-          >
-            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
-          </svg>
+        <div className={`w-64 h-64 md:w-80 md:h-80 rounded-full relative overflow-hidden border-4 ${scanning ? 'border-kiosk-blue animate-pulse' : 'border-gray-300'}`}>
+          {/* Video feed from camera */}
+          {cameraActive ? (
+            <video 
+              ref={videoRef}
+              className="h-full w-full object-cover" 
+              autoPlay 
+              playsInline 
+              muted
+            />
+          ) : (
+            // Camera placeholder
+            <div className="h-full w-full bg-gray-200 flex items-center justify-center">
+              <Camera className="h-24 w-24 text-gray-400" />
+            </div>
+          )}
           
           {/* Scanning animation */}
           {scanning && (
@@ -86,6 +146,16 @@ const FacialRecognition: React.FC<FacialRecognitionProps> = ({
         {scanning && (
           <div className="absolute top-0 left-0 right-0 bottom-0 rounded-full border-4 border-kiosk-blue animate-pulse-ring"></div>
         )}
+        
+        {/* Camera controls */}
+        {cameraActive && !scanning && (
+          <button 
+            className="absolute -top-2 -right-2 bg-white rounded-full p-1 shadow-md"
+            onClick={stopCamera}
+          >
+            <XCircle className="h-6 w-6 text-gray-600" />
+          </button>
+        )}
       </div>
       
       <div className="space-y-4 w-full max-w-xs">
@@ -101,10 +171,7 @@ const FacialRecognition: React.FC<FacialRecognitionProps> = ({
             <Button 
               variant="outline" 
               className="w-full" 
-              onClick={() => {
-                setScanning(false);
-                onCancel();
-              }}
+              onClick={handleCancel}
             >
               Cancel
             </Button>
