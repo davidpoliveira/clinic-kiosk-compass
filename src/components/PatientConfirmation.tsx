@@ -26,7 +26,7 @@ const PatientConfirmation: React.FC<PatientConfirmationProps> = ({
   onConfirm,
   onCancel
 }) => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   
   const handleConfirm = async () => {
     toast({
@@ -34,8 +34,8 @@ const PatientConfirmation: React.FC<PatientConfirmationProps> = ({
       description: t("procedureConfirmed"),
     });
     
-    // Print patient ticket
-    await printPatientTicket(patient);
+    // Print patient ticket with current language
+    await printPatientTicket(patient, language);
     
     // Continue with confirmation flow
     onConfirm();

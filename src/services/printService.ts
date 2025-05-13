@@ -3,8 +3,53 @@ import { Patient, Procedure } from "@/types/patient";
 import { formatDateOfBirth, formatProcedureDate, formatProcedureTime } from "@/services/patientService";
 import { toast } from "@/components/ui/use-toast";
 
-export const printPatientTicket = (patient: Patient) => {
+const translations = {
+  'en-US': {
+    patientCheckIn: "Patient Check-in Receipt",
+    name: "Name",
+    cpf: "CPF",
+    dateOfBirth: "Date of Birth",
+    insurance: "Insurance",
+    scheduledProcedures: "Scheduled Procedures",
+    at: "at",
+    qrCode: "[QR Code for check-in]",
+    date: "Date",
+    time: "Time",
+    thankYou: "Thank you for choosing Camasso Health Services"
+  },
+  'pt-BR': {
+    patientCheckIn: "Comprovante de Check-in do Paciente",
+    name: "Nome",
+    cpf: "CPF",
+    dateOfBirth: "Data de Nascimento",
+    insurance: "Convênio",
+    scheduledProcedures: "Procedimentos Agendados",
+    at: "às",
+    qrCode: "[Código QR para check-in]",
+    date: "Data",
+    time: "Hora",
+    thankYou: "Obrigado por escolher os Serviços de Saúde Camasso"
+  },
+  'es': {
+    patientCheckIn: "Recibo de Registro del Paciente",
+    name: "Nombre",
+    cpf: "CPF",
+    dateOfBirth: "Fecha de Nacimiento",
+    insurance: "Seguro",
+    scheduledProcedures: "Procedimientos Programados",
+    at: "a las",
+    qrCode: "[Código QR para registro]",
+    date: "Fecha",
+    time: "Hora",
+    thankYou: "Gracias por elegir los Servicios de Salud Camasso"
+  }
+};
+
+export const printPatientTicket = (patient: Patient, language: string = 'pt-BR') => {
   try {
+    // Get translations for the selected language or default to English
+    const t = translations[language as keyof typeof translations] || translations['en-US'];
+    
     // Create the content for the receipt
     const printWindow = window.open('', '_blank');
     
@@ -21,7 +66,7 @@ export const printPatientTicket = (patient: Patient) => {
     printWindow.document.write(`
       <html>
         <head>
-          <title>Patient Check-in Receipt</title>
+          <title>${t.patientCheckIn}</title>
           <style>
             body {
               font-family: 'Arial', sans-serif;
@@ -86,49 +131,49 @@ export const printPatientTicket = (patient: Patient) => {
         <body>
           <div class="header">
             <img class="logo" src="/lovable-uploads/14ba4491-7b43-422f-a3ef-19ebb3a523e8.png" alt="Camasso Logo" />
-            <div class="receipt-title">Patient Check-in Receipt</div>
+            <div class="receipt-title">${t.patientCheckIn}</div>
           </div>
           
           <div class="patient-info">
             <table>
               <tr>
-                <td class="label">Name:</td>
+                <td class="label">${t.name}:</td>
                 <td>${patient.name}</td>
               </tr>
               <tr>
-                <td class="label">CPF:</td>
+                <td class="label">${t.cpf}:</td>
                 <td>${patient.cpf}</td>
               </tr>
               <tr>
-                <td class="label">Date of Birth:</td>
+                <td class="label">${t.dateOfBirth}:</td>
                 <td>${formatDateOfBirth(patient.dateOfBirth)}</td>
               </tr>
               <tr>
-                <td class="label">Insurance:</td>
+                <td class="label">${t.insurance}:</td>
                 <td>${patient.healthInsurance}</td>
               </tr>
             </table>
           </div>
           
-          <div class="receipt-title">Scheduled Procedures</div>
+          <div class="receipt-title">${t.scheduledProcedures}</div>
           
           ${patient.procedures.map((proc: Procedure) => `
             <div class="procedure">
               <div><b>${proc.name}</b></div>
               <div>Dr. ${proc.doctor}</div>
-              <div>${formatProcedureDate(proc.scheduledTime)} at ${formatProcedureTime(proc.scheduledTime)}</div>
+              <div>${formatProcedureDate(proc.scheduledTime)} ${t.at} ${formatProcedureTime(proc.scheduledTime)}</div>
               <div>${proc.location}</div>
             </div>
           `).join('')}
           
           <div class="qr-placeholder">
-            [QR Code for check-in]
+            ${t.qrCode}
           </div>
           
           <div class="footer">
-            <p>Date: ${new Date().toLocaleDateString()}</p>
-            <p>Time: ${new Date().toLocaleTimeString()}</p>
-            <p>Thank you for choosing Camasso Health Services</p>
+            <p>${t.date}: ${new Date().toLocaleDateString()}</p>
+            <p>${t.time}: ${new Date().toLocaleTimeString()}</p>
+            <p>${t.thankYou}</p>
           </div>
         </body>
       </html>

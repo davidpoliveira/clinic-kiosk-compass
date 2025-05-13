@@ -129,6 +129,17 @@ const Index = () => {
               </div>
             </div>
             
+            {/* Integration Partners Section */}
+            <div className="mt-16 mb-8">
+              <h3 className="text-lg font-medium text-gray-700 mb-6">{t("integrationPartners")}</h3>
+              <div className="flex flex-wrap justify-center items-center gap-8 md:gap-12">
+                <img src="/lovable-uploads/21cbfb6f-3c99-492b-9b80-12c6c6177833.png" alt="TASY" className="h-12 object-contain" />
+                <img src="/lovable-uploads/32f7bc41-fd4b-498b-96f0-657c6a261196.png" alt="API" className="h-12 object-contain" />
+                <img src="/lovable-uploads/c589a83c-9312-461a-b81c-6ed7ec4610b8.png" alt="Pixeon" className="h-10 object-contain" />
+                <img src="/lovable-uploads/69ab7107-73e2-44ee-a6f8-8994a5e79f1f.png" alt="MV" className="h-12 object-contain" />
+              </div>
+            </div>
+            
             <div className="mt-12 text-center text-sm text-gray-500">
               <p>{t("needHelp")}</p>
             </div>
