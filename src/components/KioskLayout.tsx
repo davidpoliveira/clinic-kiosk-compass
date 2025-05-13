@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { cn } from "@/lib/utils";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Language } from "lucide-react";
+import { Languages } from "lucide-react";
 import { useLanguage } from "@/hooks/use-language";
 
 interface KioskLayoutProps {
@@ -34,7 +34,7 @@ const KioskLayout: React.FC<KioskLayoutProps> = ({ children, className }) => {
               <Select value={language} onValueChange={setLanguage}>
                 <SelectTrigger className="w-[120px] bg-white border border-gray-200">
                   <div className="flex items-center gap-2">
-                    <Language className="h-4 w-4 text-gray-500" />
+                    <Languages className="h-4 w-4 text-gray-500" />
                     <SelectValue placeholder={t("language")} />
                   </div>
                 </SelectTrigger>
