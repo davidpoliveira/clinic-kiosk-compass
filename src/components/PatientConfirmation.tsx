@@ -3,7 +3,7 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { CheckCircle, Clock, Hospital } from "lucide-react";
+import { CheckCircle, Clock, Hospital, Printer } from "lucide-react";
 import { Patient, Procedure } from "@/types/patient";
 import { 
   formatDateOfBirth, 
@@ -11,6 +11,9 @@ import {
   formatProcedureDate,
   calculateAge 
 } from "@/services/patientService";
+import { toast } from "@/components/ui/use-toast";
+import { printPatientTicket } from "@/services/printService";
+import { useLanguage } from "@/hooks/use-language";
 
 interface PatientConfirmationProps {
   patient: Patient;
@@ -23,6 +26,21 @@ const PatientConfirmation: React.FC<PatientConfirmationProps> = ({
   onConfirm,
   onCancel
 }) => {
+  const { t } = useLanguage();
+  
+  const handleConfirm = async () => {
+    toast({
+      title: t("printing"),
+      description: t("procedureConfirmed"),
+    });
+    
+    // Print patient ticket
+    await printPatientTicket(patient);
+    
+    // Continue with confirmation flow
+    onConfirm();
+  };
+  
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="bg-white rounded-lg shadow-md p-6">
@@ -56,7 +74,7 @@ const PatientConfirmation: React.FC<PatientConfirmationProps> = ({
       <div>
         <h3 className="text-xl font-semibold mb-4 flex items-center">
           <Hospital className="mr-2 h-5 w-5 text-kiosk-blue" />
-          Scheduled Procedures ({patient.procedures.length})
+          {t("proceduresScheduled")} ({patient.procedures.length})
         </h3>
         
         <div className="space-y-4">
@@ -72,13 +90,14 @@ const PatientConfirmation: React.FC<PatientConfirmationProps> = ({
           className="flex-1"
           onClick={onCancel}
         >
-          Not Me / Cancel
+          {t("notMe")}
         </Button>
         <Button
           className="flex-1 bg-kiosk-blue hover:bg-kiosk-darkblue text-white"
-          onClick={onConfirm}
+          onClick={handleConfirm}
         >
-          Confirm Identification
+          <Printer className="mr-2 h-4 w-4" />
+          {t("confirmIdentification")}
         </Button>
       </div>
     </div>
@@ -86,6 +105,7 @@ const PatientConfirmation: React.FC<PatientConfirmationProps> = ({
 };
 
 const ProcedureCard: React.FC<{ procedure: Procedure }> = ({ procedure }) => {
+  const { t } = useLanguage();
   const procedureDate = formatProcedureDate(procedure.scheduledTime);
   const procedureTime = formatProcedureTime(procedure.scheduledTime);
   
@@ -111,7 +131,7 @@ const ProcedureCard: React.FC<{ procedure: Procedure }> = ({ procedure }) => {
           <div className="flex items-start">
             <CheckCircle className="h-5 w-5 text-kiosk-blue mr-2 flex-shrink-0 mt-0.5" />
             <div>
-              <p className="font-medium text-sm">Preparation Required:</p>
+              <p className="font-medium text-sm">{t("preparationRequired")}:</p>
               <p className="text-sm text-gray-700">{procedure.preparationInstructions}</p>
             </div>
           </div>

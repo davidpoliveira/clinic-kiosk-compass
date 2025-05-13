@@ -10,6 +10,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft, User, Check } from "lucide-react";
 import { Patient } from "@/types/patient";
 import { getRandomPatient } from "@/services/patientService";
+import { useLanguage } from "@/hooks/use-language";
 
 type KioskStep = "welcome" | "identification" | "confirmation" | "completion";
 
@@ -17,6 +18,7 @@ const Index = () => {
   const [step, setStep] = useState<KioskStep>("welcome");
   const [identificationMethod, setIdentificationMethod] = useState<"face" | "cpf">("face");
   const [patient, setPatient] = useState<Patient | null>(null);
+  const { t } = useLanguage();
 
   const handleStartIdentification = (method: "face" | "cpf") => {
     setIdentificationMethod(method);
@@ -84,10 +86,10 @@ const Index = () => {
         {step === "welcome" && (
           <div className="text-center animate-fade-in">
             <h1 className="text-3xl md:text-4xl font-bold mb-6">
-              Welcome to ClinicKiosk
+              {t("welcome")}
             </h1>
             <p className="text-xl mb-8 text-gray-600">
-              Please select how you'd like to identify yourself
+              {t("selectIdentificationMethod")}
             </p>
             
             <div className="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto">
@@ -98,8 +100,8 @@ const Index = () => {
                 <div className="mb-4 bg-kiosk-blue bg-opacity-10 h-16 w-16 rounded-full flex items-center justify-center mx-auto">
                   <User className="h-8 w-8 text-kiosk-blue" />
                 </div>
-                <h2 className="text-xl font-semibold mb-2">Facial Recognition</h2>
-                <p className="text-gray-600">Quick and contactless identification using your face</p>
+                <h2 className="text-xl font-semibold mb-2">{t("facialRecognition")}</h2>
+                <p className="text-gray-600">{t("facialDesc")}</p>
               </div>
               
               <div 
@@ -122,30 +124,30 @@ const Index = () => {
                     <path d="M7 17h7" />
                   </svg>
                 </div>
-                <h2 className="text-xl font-semibold mb-2">CPF Number</h2>
-                <p className="text-gray-600">Enter your CPF number to identify yourself</p>
+                <h2 className="text-xl font-semibold mb-2">{t("cpfNumber")}</h2>
+                <p className="text-gray-600">{t("cpfDesc")}</p>
               </div>
             </div>
             
             <div className="mt-12 text-center text-sm text-gray-500">
-              <p>Need assistance? Please ask our staff for help</p>
+              <p>{t("needHelp")}</p>
             </div>
           </div>
         )}
 
         {step === "identification" && (
           <div className="bg-white rounded-lg shadow-md p-6 md:p-8 animate-fade-in">
-            <h2 className="text-2xl font-bold mb-6 text-center">Patient Identification</h2>
+            <h2 className="text-2xl font-bold mb-6 text-center">{t("patientIdentification")}</h2>
             
             <Tabs defaultValue={identificationMethod} className="w-full">
               <TabsList className="grid grid-cols-2 mb-8">
                 <TabsTrigger value="face" onClick={() => setIdentificationMethod("face")}>
                   <User className="h-4 w-4 mr-2" />
-                  Facial Recognition
+                  {t("facialRecognition")}
                 </TabsTrigger>
                 <TabsTrigger value="cpf" onClick={() => setIdentificationMethod("cpf")}>
                   <Check className="h-4 w-4 mr-2" />
-                  CPF Number
+                  {t("cpfNumber")}
                 </TabsTrigger>
               </TabsList>
               
@@ -167,7 +169,7 @@ const Index = () => {
 
         {step === "confirmation" && patient && (
           <div className="bg-white rounded-lg shadow-md p-6 md:p-8">
-            <h2 className="text-2xl font-bold mb-6">Confirm Your Identity</h2>
+            <h2 className="text-2xl font-bold mb-6">{t("confirmIdentity")}</h2>
             <PatientConfirmation 
               patient={patient} 
               onConfirm={handleConfirm}

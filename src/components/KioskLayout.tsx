@@ -1,6 +1,9 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { cn } from "@/lib/utils";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Language } from "lucide-react";
+import { useLanguage } from "@/hooks/use-language";
 
 interface KioskLayoutProps {
   children: React.ReactNode;
@@ -8,36 +11,45 @@ interface KioskLayoutProps {
 }
 
 const KioskLayout: React.FC<KioskLayoutProps> = ({ children, className }) => {
+  const { language, setLanguage, t } = useLanguage();
+
   return (
     <div className={cn(
       "min-h-screen w-full flex flex-col bg-white text-kiosk-text font-sans",
       className
     )}>
       {/* Header */}
-      <header className="bg-kiosk-blue p-4 md:p-6 shadow-md">
+      <header className="bg-white border-b p-4 md:p-5 shadow-md">
         <div className="container flex justify-between items-center">
           <div className="flex items-center gap-3">
-            <div className="bg-white p-2 rounded-full">
-              <svg 
-                xmlns="http://www.w3.org/2000/svg" 
-                viewBox="0 0 24 24" 
-                fill="none" 
-                stroke="currentColor" 
-                strokeWidth="2" 
-                strokeLinecap="round" 
-                strokeLinejoin="round" 
-                className="text-kiosk-blue h-8 w-8 md:h-10 md:w-10"
-              >
-                <path d="M8 9h8"></path>
-                <path d="M8 13h6"></path>
-                <path d="M18 4a3 3 0 0 1 3 3v10a3 3 0 0 1-3 3H6a3 3 0 0 1-3-3V7a3 3 0 0 1 3-3h12z"></path>
-              </svg>
-            </div>
-            <h1 className="text-xl md:text-3xl font-bold text-white">ClinicKiosk</h1>
+            <img 
+              src="/lovable-uploads/14ba4491-7b43-422f-a3ef-19ebb3a523e8.png" 
+              alt="Camasso Logo" 
+              className="h-10 md:h-12"
+            />
           </div>
-          <div className="text-white text-sm md:text-base">
-            <p className="font-medium">{new Date().toLocaleDateString()}</p>
-            <p>{new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+          
+          <div className="flex items-center gap-4">
+            <div className="flex items-center">
+              <Select value={language} onValueChange={setLanguage}>
+                <SelectTrigger className="w-[120px] bg-white border border-gray-200">
+                  <div className="flex items-center gap-2">
+                    <Language className="h-4 w-4 text-gray-500" />
+                    <SelectValue placeholder={t("language")} />
+                  </div>
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="pt-BR">Português</SelectItem>
+                  <SelectItem value="en-US">English</SelectItem>
+                  <SelectItem value="es">Español</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            <div className="text-gray-700 text-sm md:text-base">
+              <p className="font-medium">{new Date().toLocaleDateString()}</p>
+              <p>{new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</p>
+            </div>
           </div>
         </div>
       </header>
@@ -50,7 +62,7 @@ const KioskLayout: React.FC<KioskLayoutProps> = ({ children, className }) => {
       {/* Footer */}
       <footer className="bg-gray-100 py-4 text-center text-sm text-gray-500">
         <div className="container">
-          <p>© 2025 ClinicKiosk Self-Service System</p>
+          <p>© 2025 Camasso {t("kioskSystem")}</p>
         </div>
       </footer>
     </div>

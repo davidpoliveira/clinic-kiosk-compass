@@ -1,49 +1,61 @@
 
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { CheckCircle } from "lucide-react";
+import { CheckCircle2 } from "lucide-react";
 import { Patient } from "@/types/patient";
+import { useLanguage } from "@/hooks/use-language";
 
 interface CompletionScreenProps {
   patient: Patient;
   onNewPatient: () => void;
 }
 
-const CompletionScreen: React.FC<CompletionScreenProps> = ({ 
-  patient, 
-  onNewPatient 
+const CompletionScreen: React.FC<CompletionScreenProps> = ({
+  patient,
+  onNewPatient,
 }) => {
+  const { t } = useLanguage();
+
   return (
-    <div className="flex flex-col items-center max-w-md mx-auto text-center animate-fade-in">
-      <div className="rounded-full bg-kiosk-green bg-opacity-20 p-6 mb-6">
-        <CheckCircle className="h-16 w-16 text-kiosk-green" />
-      </div>
-      
-      <h2 className="text-2xl font-bold mb-4">Check-in Complete!</h2>
-      
-      <p className="text-lg mb-6">
-        Welcome, {patient.name}. Your registration is confirmed for today.
-      </p>
-      
-      <div className="bg-blue-50 p-4 rounded-lg mb-8 w-full">
-        <h3 className="font-semibold text-kiosk-blue mb-2">Next Steps:</h3>
-        <ol className="text-left space-y-2 pl-4">
-          <li>Please take a seat in the waiting area</li>
-          <li>The staff will call you when it's your turn</li>
-          <li>Make sure your phone is on and available</li>
-        </ol>
-      </div>
-      
-      <div className="border-t border-gray-200 pt-6 w-full">
-        <p className="text-sm text-gray-500 mb-4">
-          Thank you for using our self-service kiosk.
+    <div className="flex flex-col items-center justify-center py-8 px-4 text-center animate-fade-in">
+      <div className="mb-6">
+        <div className="rounded-full bg-green-100 p-4 mb-4">
+          <CheckCircle2 className="h-16 w-16 text-green-500" />
+        </div>
+        <h2 className="text-3xl font-bold text-gray-800 mb-2">
+          {t("thankYou")}
+        </h2>
+        <p className="text-xl text-gray-600">
+          {t("checkIn")}
         </p>
-        
-        <Button 
-          className="bg-kiosk-blue hover:bg-kiosk-darkblue text-white w-full"
+      </div>
+
+      <div className="w-full max-w-md bg-gray-100 rounded-lg p-6 mb-8">
+        <div className="text-left">
+          <h3 className="font-medium mb-2">{patient.name}</h3>
+          <p className="text-gray-600 text-sm mb-4">
+            {patient.procedures.length > 1
+              ? `${patient.procedures.length} procedures scheduled today`
+              : "1 procedure scheduled today"}
+          </p>
+          
+          {patient.procedures.map((procedure) => (
+            <div key={procedure.id} className="mb-2 last:mb-0 bg-white p-3 rounded-md">
+              <p className="font-medium">{procedure.name}</p>
+              <p className="text-sm text-gray-600">
+                {procedure.location}
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="mt-2">
+        <Button
           onClick={onNewPatient}
+          className="bg-kiosk-blue hover:bg-kiosk-darkblue text-white px-8 py-6 text-lg"
         >
-          Finish and Return to Start
+          {t("newPatient")}
         </Button>
       </div>
     </div>
