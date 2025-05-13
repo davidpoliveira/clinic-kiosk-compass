@@ -24,6 +24,7 @@ const translations = {
     procedureConfirmed: 'Your procedure has been confirmed',
     newPatient: 'New Patient',
     checkIn: 'Check-in completed successfully',
+    integrationPartners: 'Integrations',
   },
   'pt-BR': {
     welcome: 'Bem-vindo ao Camasso',
@@ -46,6 +47,7 @@ const translations = {
     procedureConfirmed: 'Seu procedimento foi confirmado',
     newPatient: 'Novo Paciente',
     checkIn: 'Check-in realizado com sucesso',
+    integrationPartners: 'Integrações',
   },
   'es': {
     welcome: 'Bienvenido a Camasso',
@@ -68,6 +70,7 @@ const translations = {
     procedureConfirmed: 'Su procedimiento ha sido confirmado',
     newPatient: 'Nuevo Paciente',
     checkIn: 'Check-in completado con éxito',
+    integrationPartners: 'Integraciones',
   }
 };
 
