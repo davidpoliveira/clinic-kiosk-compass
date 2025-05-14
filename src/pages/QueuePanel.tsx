@@ -4,6 +4,7 @@ import KioskLayout from "@/components/KioskLayout";
 import { useLanguage } from "@/hooks/use-language";
 import { Card } from "@/components/ui/card";
 import { Brain, Clock } from "lucide-react";
+import { toast } from "@/components/ui/use-toast";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 interface QueueItem {
@@ -132,6 +133,17 @@ const QueuePanel = () => {
     setQueueItems(queueWithEstimates);
     setLastCalled(demoQueue.find(item => item.status === "called") || null);
     
+    // Show AI estimation toast
+    toast({
+      title: t("aiEstimation") || "Estimativa por IA",
+      description: busyLevel === 'low' 
+        ? (t("lowTrafficMessage") || "Fluxo baixo detectado. Tempos de espera reduzidos.")
+        : busyLevel === 'medium'
+        ? (t("mediumTrafficMessage") || "Fluxo moderado. Tempos de espera normais.")
+        : (t("highTrafficMessage") || "Fluxo alto detectado. Tempos de espera aumentados."),
+      duration: 5000,
+    });
+    
     // Simulate a new call every 30 seconds
     const interval = setInterval(() => {
       const waitingItems = queueWithEstimates.filter(item => item.status === "waiting");
@@ -172,31 +184,70 @@ const QueuePanel = () => {
     const now = new Date();
     const diffMinutes = Math.floor((now.getTime() - timestamp.getTime()) / (1000 * 60));
     
-    if (diffMinutes < 1) return t("lessThanAMinute");
-    if (diffMinutes === 1) return t("oneMinute");
-    return t("minutesAgo").replace("{minutes}", diffMinutes.toString());
+    if (diffMinutes < 1) return t("lessThanAMinute") || "Menos de um minuto";
+    if (diffMinutes === 1) return t("oneMinute") || "1 minuto atrás";
+    return (t("minutesAgo") || "{minutes} minutos atrás").replace("{minutes}", diffMinutes.toString());
   };
   
   // Format estimated time in friendly terms
   const formatEstimatedTime = (minutes: number) => {
-    if (!minutes) return "-";
+    if (!minutes && minutes !== 0) return "-";
     
-    if (minutes < 5) return t("lessThanFiveMinutes");
-    if (minutes < 10) return t("lessThanTenMinutes");
+    if (minutes < 5) return t("lessThanFiveMinutes") || "Menos de 5 minutos";
+    if (minutes < 10) return t("lessThanTenMinutes") || "Menos de 10 minutos";
     
     if (minutes > 60) {
       const hours = Math.floor(minutes / 60);
       const remainingMinutes = minutes % 60;
       
       if (remainingMinutes === 0) {
-        return hours === 1 ? t("aboutOneHour") : t("aboutHours").replace("{hours}", hours.toString());
+        return hours === 1 
+          ? (t("aboutOneHour") || "Aproximadamente 1 hora") 
+          : (t("aboutHours") || "Aproximadamente {hours} horas").replace("{hours}", hours.toString());
       }
-      return t("aboutHoursAndMinutes")
+      return (t("aboutHoursAndMinutes") || "Aprox. {hours}h e {minutes}min")
         .replace("{hours}", hours.toString())
         .replace("{minutes}", remainingMinutes.toString());
     }
     
-    return t("aboutMinutes").replace("{minutes}", minutes.toString());
+    return (t("aboutMinutes") || "Aproximadamente {minutes} minutos").replace("{minutes}", minutes.toString());
+  };
+  
+  // Translation helper for busy level
+  const getBusyLevelText = () => {
+    switch(busyLevel) {
+      case 'low':
+        return t("currentlyNotBusy") || "Pouco movimento no momento";
+      case 'medium':
+        return t("moderatelyBusy") || "Movimento moderado";
+      case 'high':
+        return t("veryBusy") || "Alto movimento";
+      default:
+        return t("moderatelyBusy") || "Movimento moderado";
+    }
+  };
+  
+  // Get color for busy level indicator
+  const getBusyLevelColor = () => {
+    switch(busyLevel) {
+      case 'low':
+        return "#10b981"; // green
+      case 'medium':
+        return "#f59e0b"; // amber
+      case 'high':
+        return "#ef4444"; // red
+      default:
+        return "#f59e0b";
+    }
+  };
+  
+  // Get color for estimated wait time
+  const getWaitTimeColor = (minutes?: number) => {
+    if (!minutes && minutes !== 0) return "";
+    
+    if (minutes > 30) return "text-red-500";
+    if (minutes > 15) return "text-amber-500";
+    return "text-green-500";
   };
   
   return (
@@ -205,43 +256,35 @@ const QueuePanel = () => {
         <div className="grid grid-cols-1 gap-8">
           {/* Header with logo and title */}
           <div className="text-center mb-4">
-            <h1 className="text-3xl font-bold">{t("queuePanelTitle")}</h1>
-            <p className="text-xl text-gray-600">{t("queuePanelSubtitle")}</p>
+            <h1 className="text-3xl font-bold">{t("queuePanelTitle") || "Fila de Atendimento"}</h1>
+            <p className="text-xl text-gray-600">{t("queuePanelSubtitle") || "Aguarde seu número ser chamado"}</p>
           </div>
           
           {/* AI Wait Time Estimation Card */}
-          <div className="bg-white p-6 rounded-lg shadow-md border-l-4 border-kiosk-blue">
+          <Card className="p-6 border-l-4 border-kiosk-blue">
             <div className="flex items-center mb-4">
               <Brain className="h-6 w-6 mr-2 text-kiosk-blue" />
-              <h2 className="text-xl font-semibold">{t("aiWaitTimeEstimation")}</h2>
+              <h2 className="text-xl font-semibold">{t("aiWaitTimeEstimation") || "Estimativa de Tempo por IA"}</h2>
             </div>
             
             <div className="flex items-center mb-4">
               <div className="w-3 h-3 rounded-full mr-2"
-                style={{ 
-                  backgroundColor: busyLevel === 'low' ? '#10b981' : 
-                                  busyLevel === 'medium' ? '#f59e0b' : 
-                                  '#ef4444'
-                }}
+                style={{ backgroundColor: getBusyLevelColor() }}
               ></div>
-              <span className="text-sm">
-                {busyLevel === 'low' ? t("currentlyNotBusy") : 
-                 busyLevel === 'medium' ? t("moderatelyBusy") : 
-                 t("veryBusy")}
-              </span>
+              <span className="text-sm">{getBusyLevelText()}</span>
             </div>
             
             <p className="text-sm text-gray-600 mb-2">
-              {t("waitTimeDisclaimer")}
+              {t("waitTimeDisclaimer") || "As estimativas são baseadas em padrões históricos e podem variar."}
             </p>
-          </div>
+          </Card>
           
           {/* Last called patient */}
           {lastCalled && (
             <div className="animate-pulse-slow">
               <div className="bg-kiosk-blue text-white p-6 rounded-lg shadow-lg">
                 <div className="text-center">
-                  <h2 className="text-2xl font-bold mb-4">{t("nowCalling")}</h2>
+                  <h2 className="text-2xl font-bold mb-4">{t("nowCalling") || "CHAMANDO AGORA"}</h2>
                   <div className="flex items-center justify-center">
                     <div className="text-5xl md:text-7xl font-bold mr-4">{lastCalled.number}</div>
                     <div className="text-left">
@@ -259,14 +302,14 @@ const QueuePanel = () => {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>{t("queueNumber")}</TableHead>
-                  <TableHead>{t("name")}</TableHead>
-                  <TableHead>{t("destination")}</TableHead>
-                  <TableHead>{t("waitingSince")}</TableHead>
+                  <TableHead>{t("queueNumber") || "Senha"}</TableHead>
+                  <TableHead>{t("name") || "Nome"}</TableHead>
+                  <TableHead>{t("destination") || "Destino"}</TableHead>
+                  <TableHead>{t("waitingSince") || "Aguardando desde"}</TableHead>
                   <TableHead>
                     <div className="flex items-center">
                       <Clock className="h-4 w-4 mr-1" />
-                      {t("estimatedWaitTime")}
+                      {t("estimatedWaitTime") || "Tempo estimado de espera"}
                     </div>
                   </TableHead>
                 </TableRow>
@@ -283,13 +326,7 @@ const QueuePanel = () => {
                       <TableCell>{getWaitingTime(item.timestamp)}</TableCell>
                       <TableCell>
                         <div className="flex items-center">
-                          <span className={
-                            item.estimatedWaitTime && item.estimatedWaitTime > 30 
-                              ? "text-red-500" 
-                              : item.estimatedWaitTime && item.estimatedWaitTime > 15 
-                              ? "text-amber-500" 
-                              : "text-green-500"
-                          }>
+                          <span className={getWaitTimeColor(item.estimatedWaitTime)}>
                             {formatEstimatedTime(item.estimatedWaitTime || 0)}
                           </span>
                         </div>
@@ -303,7 +340,7 @@ const QueuePanel = () => {
           {/* Fallback if table is empty */}
           {queueItems.filter(item => item.status === "waiting").length === 0 && (
             <div className="text-center p-8 bg-white rounded-lg">
-              <p className="text-gray-500">{t("noWaitingPatients")}</p>
+              <p className="text-gray-500">{t("noWaitingPatients") || "Não há pacientes aguardando no momento"}</p>
             </div>
           )}
         </div>
