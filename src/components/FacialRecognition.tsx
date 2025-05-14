@@ -67,33 +67,43 @@ const FacialRecognition: React.FC<FacialRecognitionProps> = ({
 
   // Handle scan simulation
   useEffect(() => {
+    let interval: NodeJS.Timeout | null = null;
+    
     if (scanning) {
-      const simulateScan = () => {
-        const interval = setInterval(() => {
-          setProgress(prev => {
-            if (prev >= 100) {
-              clearInterval(interval);
-              setScanning(false);
+      interval = setInterval(() => {
+        setProgress(prev => {
+          if (prev >= 100) {
+            if (interval) clearInterval(interval);
+            setScanning(false);
+            setTimeout(() => {
               toast({
                 title: "Face scan complete",
                 description: "Your identity has been verified",
               });
               onComplete();
-              return 100;
-            }
-            return prev + 5;
-          });
-        }, 100);
-        
-        return () => clearInterval(interval);
-      };
-      
-      simulateScan();
+            }, 0);
+            return 100;
+          }
+          return prev + 5;
+        });
+      }, 100);
     }
+    
+    return () => {
+      if (interval) clearInterval(interval);
+    };
   }, [scanning, onComplete, toast]);
 
-  // Clean up camera on unmount
+  // Initialize camera on component mount
   useEffect(() => {
+    const loadCamera = async () => {
+      if (!cameraActive) {
+        await initializeCamera();
+      }
+    };
+    
+    loadCamera();
+    
     return () => {
       stopCamera();
     };
@@ -110,17 +120,17 @@ const FacialRecognition: React.FC<FacialRecognitionProps> = ({
       <div className="relative mb-8">
         <div className={`w-64 h-64 md:w-80 md:h-80 rounded-full relative overflow-hidden border-4 ${scanning ? 'border-kiosk-blue animate-pulse' : 'border-gray-300'}`}>
           {/* Video feed from camera */}
-          {cameraActive ? (
-            <video 
-              ref={videoRef}
-              className="h-full w-full object-cover" 
-              autoPlay 
-              playsInline 
-              muted
-            />
-          ) : (
-            // Camera placeholder
-            <div className="h-full w-full bg-gray-200 flex items-center justify-center">
+          <video 
+            ref={videoRef}
+            className="h-full w-full object-cover" 
+            autoPlay 
+            playsInline 
+            muted
+          />
+          
+          {/* Camera placeholder shown only when camera is not active */}
+          {!cameraActive && (
+            <div className="h-full w-full absolute top-0 left-0 bg-gray-200 flex items-center justify-center">
               <Camera className="h-24 w-24 text-gray-400" />
             </div>
           )}
