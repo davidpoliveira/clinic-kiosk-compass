@@ -1,13 +1,14 @@
 
 import React, { useState } from "react";
-import KioskLayout from "@/components/KioskLayout";
+import { Link } from "react-router-dom";
+import KioskLayout, { LayoutType } from "@/components/KioskLayout";
 import FacialRecognition from "@/components/FacialRecognition";
 import CPFInput from "@/components/CPFInput";
 import PatientConfirmation from "@/components/PatientConfirmation";
 import CompletionScreen from "@/components/CompletionScreen";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, User, Check } from "lucide-react";
+import { ArrowLeft, User, Check, ListIcon } from "lucide-react";
 import { Patient } from "@/types/patient";
 import { getRandomPatient } from "@/services/patientService";
 import { useLanguage } from "@/hooks/use-language";
@@ -18,6 +19,7 @@ const Index = () => {
   const [step, setStep] = useState<KioskStep>("welcome");
   const [identificationMethod, setIdentificationMethod] = useState<"face" | "cpf">("face");
   const [patient, setPatient] = useState<Patient | null>(null);
+  const [layout, setLayout] = useState<LayoutType>("vertical");
   const { t } = useLanguage();
 
   const handleStartIdentification = (method: "face" | "cpf") => {
@@ -79,7 +81,7 @@ const Index = () => {
   };
 
   return (
-    <KioskLayout>
+    <KioskLayout initialLayout={layout}>
       <div className="max-w-4xl mx-auto">
         {renderStepIndicator()}
         
@@ -127,6 +129,16 @@ const Index = () => {
                 <h2 className="text-xl font-semibold mb-2">{t("cpfNumber")}</h2>
                 <p className="text-gray-600">{t("cpfDesc")}</p>
               </div>
+            </div>
+            
+            {/* Queue Panel Link */}
+            <div className="mt-8">
+              <Button variant="outline" className="gap-2" asChild>
+                <Link to="/queue">
+                  <ListIcon className="h-4 w-4" />
+                  <span>{t("queuePanelTitle")}</span>
+                </Link>
+              </Button>
             </div>
             
             {/* Integration Partners Section */}

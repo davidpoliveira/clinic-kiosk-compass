@@ -25,6 +25,18 @@ const translations = {
     newPatient: 'New Patient',
     checkIn: 'Check-in completed successfully',
     integrationPartners: 'Integrations',
+    // Queue Panel Translations
+    queuePanelTitle: 'Appointment Queue',
+    queuePanelSubtitle: 'Please wait for your number to be called',
+    nowCalling: 'NOW CALLING',
+    lessThanAMinute: 'Less than a minute',
+    oneMinute: '1 minute ago',
+    minutesAgo: '{minutes} minutes ago',
+    // Layout options 
+    layoutVertical: 'Vertical Layout',
+    layoutHorizontal: 'Horizontal Layout',
+    layoutCompact: 'Compact Layout',
+    layoutFullscreen: 'Fullscreen Layout'
   },
   'pt-BR': {
     welcome: 'Bem-vindo ao Camasso',
@@ -48,6 +60,18 @@ const translations = {
     newPatient: 'Novo Paciente',
     checkIn: 'Check-in realizado com sucesso',
     integrationPartners: 'Integrações',
+    // Queue Panel Translations
+    queuePanelTitle: 'Fila de Atendimento',
+    queuePanelSubtitle: 'Aguarde seu número ser chamado',
+    nowCalling: 'CHAMANDO AGORA',
+    lessThanAMinute: 'Menos de um minuto',
+    oneMinute: '1 minuto atrás',
+    minutesAgo: '{minutes} minutos atrás',
+    // Layout options
+    layoutVertical: 'Layout Vertical',
+    layoutHorizontal: 'Layout Horizontal',
+    layoutCompact: 'Layout Compacto',
+    layoutFullscreen: 'Layout Tela Cheia'
   },
   'es': {
     welcome: 'Bienvenido a Camasso',
@@ -71,6 +95,18 @@ const translations = {
     newPatient: 'Nuevo Paciente',
     checkIn: 'Check-in completado con éxito',
     integrationPartners: 'Integraciones',
+    // Queue Panel Translations
+    queuePanelTitle: 'Cola de Atención',
+    queuePanelSubtitle: 'Espere a que su número sea llamado',
+    nowCalling: 'LLAMANDO AHORA',
+    lessThanAMinute: 'Menos de un minuto',
+    oneMinute: '1 minuto atrás',
+    minutesAgo: 'Hace {minutes} minutos',
+    // Layout options
+    layoutVertical: 'Diseño Vertical',
+    layoutHorizontal: 'Diseño Horizontal',
+    layoutCompact: 'Diseño Compacto',
+    layoutFullscreen: 'Diseño Pantalla Completa'
   }
 };
 
