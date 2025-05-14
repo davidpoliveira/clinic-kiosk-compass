@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
 
 interface FacialRecognitionProps {
-  onComplete: () => void;
+  onComplete: (gender: "male" | "female") => void;
   onCancel: () => void;
 }
 
@@ -16,7 +16,9 @@ const FacialRecognition: React.FC<FacialRecognitionProps> = ({
   const [scanning, setScanning] = useState(false);
   const [progress, setProgress] = useState(0);
   const [cameraActive, setCameraActive] = useState(false);
+  const [detectedGender, setDetectedGender] = useState<"male" | "female" | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const { toast } = useToast();
 
@@ -62,7 +64,35 @@ const FacialRecognition: React.FC<FacialRecognitionProps> = ({
     }
     
     setProgress(0);
+    setDetectedGender(null);
     setScanning(true);
+    
+    // AI gender detection simulation - in a real app this would use ML
+    setTimeout(() => {
+      detectGender();
+    }, 1000);
+  };
+
+  // Simulated gender detection using AI
+  const detectGender = () => {
+    if (!videoRef.current || !canvasRef.current) return;
+    
+    const canvas = canvasRef.current;
+    const context = canvas.getContext('2d');
+    
+    if (!context) return;
+
+    // Draw the current video frame to the canvas
+    canvas.width = videoRef.current.videoWidth;
+    canvas.height = videoRef.current.videoHeight;
+    context.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
+    
+    // In a real implementation, we would send this image to an AI model
+    // For now, we'll randomly determine a gender for demonstration
+    const randomGender = Math.random() > 0.5 ? "male" : "female";
+    setDetectedGender(randomGender);
+    
+    console.log(`AI detected gender: ${randomGender}`);
   };
 
   // Handle scan simulation
@@ -78,9 +108,9 @@ const FacialRecognition: React.FC<FacialRecognitionProps> = ({
             setTimeout(() => {
               toast({
                 title: "Face scan complete",
-                description: "Your identity has been verified",
+                description: `Identity verified: ${detectedGender === "male" ? "Male" : "Female"} patient`,
               });
-              onComplete();
+              onComplete(detectedGender || "male");
             }, 0);
             return 100;
           }
@@ -92,7 +122,7 @@ const FacialRecognition: React.FC<FacialRecognitionProps> = ({
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [scanning, onComplete, toast]);
+  }, [scanning, onComplete, toast, detectedGender]);
 
   // Initialize camera on component mount
   useEffect(() => {
@@ -128,6 +158,12 @@ const FacialRecognition: React.FC<FacialRecognitionProps> = ({
             muted
           />
           
+          {/* Hidden canvas for image processing */}
+          <canvas 
+            ref={canvasRef} 
+            className="hidden" 
+          />
+          
           {/* Camera placeholder shown only when camera is not active */}
           {!cameraActive && (
             <div className="h-full w-full absolute top-0 left-0 bg-gray-200 flex items-center justify-center">
@@ -149,6 +185,15 @@ const FacialRecognition: React.FC<FacialRecognitionProps> = ({
                 <Loader className="h-12 w-12 text-kiosk-blue animate-spin" />
               </div>
             </>
+          )}
+          
+          {/* Gender detection indicator */}
+          {detectedGender && scanning && (
+            <div className="absolute bottom-4 left-0 right-0 flex justify-center">
+              <span className="bg-white bg-opacity-80 px-3 py-1 rounded-full text-sm font-medium">
+                {detectedGender === "male" ? "Male" : "Female"} detected
+              </span>
+            </div>
           )}
         </div>
         
