@@ -3,18 +3,9 @@ import React, { useState, useEffect, useRef } from "react";
 import { Loader, Camera, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
-import OpenAI from "openai";
-
-// Configure OpenAI - In a real app, this would be using environment variables
-// For demo purposes, we're using a public demo key with limited access
-const DEMO_API_KEY = "demo-key-for-limited-access";
-const openai = new OpenAI({
-  apiKey: DEMO_API_KEY,
-  dangerouslyAllowBrowser: true // Only for demo purposes
-});
 
 interface FacialRecognitionProps {
-  onComplete: (gender: "male" | "female") => void;
+  onComplete: () => void;
   onCancel: () => void;
 }
 
@@ -25,10 +16,7 @@ const FacialRecognition: React.FC<FacialRecognitionProps> = ({
   const [scanning, setScanning] = useState(false);
   const [progress, setProgress] = useState(0);
   const [cameraActive, setCameraActive] = useState(false);
-  const [detectedGender, setDetectedGender] = useState<"male" | "female" | null>(null);
-  const [processingImage, setProcessingImage] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const { toast } = useToast();
 
@@ -74,108 +62,7 @@ const FacialRecognition: React.FC<FacialRecognitionProps> = ({
     }
     
     setProgress(0);
-    setDetectedGender(null);
     setScanning(true);
-    
-    // AI gender detection
-    setTimeout(() => {
-      detectGenderWithAI();
-    }, 1000);
-  };
-
-  // Convert canvas to blob
-  const canvasToBlob = (canvas: HTMLCanvasElement): Promise<Blob> => {
-    return new Promise((resolve) => {
-      canvas.toBlob((blob) => {
-        if (blob) {
-          resolve(blob);
-        } else {
-          // Fallback if toBlob fails
-          const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
-          const byteString = atob(dataUrl.split(',')[1]);
-          const mimeString = dataUrl.split(',')[0].split(':')[1].split(';')[0];
-          const ab = new ArrayBuffer(byteString.length);
-          const ia = new Uint8Array(ab);
-          for (let i = 0; i < byteString.length; i++) {
-            ia[i] = byteString.charCodeAt(i);
-          }
-          resolve(new Blob([ab], { type: mimeString }));
-        }
-      }, 'image/jpeg', 0.8);
-    });
-  };
-
-  // Gender detection using OpenAI
-  const detectGenderWithAI = async () => {
-    if (!videoRef.current || !canvasRef.current) return;
-    
-    const canvas = canvasRef.current;
-    const context = canvas.getContext('2d');
-    
-    if (!context) return;
-
-    setProcessingImage(true);
-
-    try {
-      // Draw the current video frame to the canvas
-      canvas.width = videoRef.current.videoWidth;
-      canvas.height = videoRef.current.videoHeight;
-      context.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
-      
-      // In a real implementation, we would:
-      // 1. Convert canvas to blob
-      // 2. Send to OpenAI for analysis
-      // For demo purposes, we'll simulate the AI response
-
-      // Simulated AI response - in a real app, we'd use OpenAI Vision API
-      // This would be the code for OpenAI integration:
-      /*
-      const blob = await canvasToBlob(canvas);
-      const response = await openai.chat.completions.create({
-        model: "gpt-4o",
-        messages: [
-          {
-            role: "system",
-            content: "You are a facial recognition specialist that only detects if a face is male or female. Respond with ONLY 'male' or 'female'."
-          },
-          {
-            role: "user",
-            content: [
-              { type: "text", text: "What gender is the person in this image?" },
-              { 
-                type: "image_url", 
-                image_url: { 
-                  url: URL.createObjectURL(blob),
-                  detail: "low"
-                }
-              }
-            ]
-          }
-        ]
-      });
-      
-      const detectedGender = response.choices[0].message.content?.toLowerCase().includes("female") ? "female" : "male";
-      */
-      
-      // For demo purposes, generating random gender
-      const detectedGender = Math.random() > 0.5 ? "male" : "female";
-      
-      console.log(`AI detected gender: ${detectedGender}`);
-      setDetectedGender(detectedGender);
-    } catch (error) {
-      console.error("Error in AI gender detection:", error);
-      toast({
-        title: "AI Detection Error",
-        description: "Could not analyze facial features. Using random gender assignment.",
-        variant: "destructive"
-      });
-      
-      // Fallback to random gender
-      const randomGender = Math.random() > 0.5 ? "male" : "female";
-      setDetectedGender(randomGender);
-    } finally {
-      setProcessingImage(false);
-    }
   };
 
   // Handle scan simulation
@@ -191,9 +78,9 @@ const FacialRecognition: React.FC<FacialRecognitionProps> = ({
             setTimeout(() => {
               toast({
                 title: "Face scan complete",
-                description: `Identity verified: ${detectedGender === "male" ? "Male" : "Female"} patient`,
+                description: "Your identity has been verified",
               });
-              onComplete(detectedGender || "male");
+              onComplete();
             }, 0);
             return 100;
           }
@@ -205,7 +92,7 @@ const FacialRecognition: React.FC<FacialRecognitionProps> = ({
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [scanning, onComplete, toast, detectedGender]);
+  }, [scanning, onComplete, toast]);
 
   // Initialize camera on component mount
   useEffect(() => {
@@ -241,12 +128,6 @@ const FacialRecognition: React.FC<FacialRecognitionProps> = ({
             muted
           />
           
-          {/* Hidden canvas for image processing */}
-          <canvas 
-            ref={canvasRef} 
-            className="hidden" 
-          />
-          
           {/* Camera placeholder shown only when camera is not active */}
           {!cameraActive && (
             <div className="h-full w-full absolute top-0 left-0 bg-gray-200 flex items-center justify-center">
@@ -268,15 +149,6 @@ const FacialRecognition: React.FC<FacialRecognitionProps> = ({
                 <Loader className="h-12 w-12 text-kiosk-blue animate-spin" />
               </div>
             </>
-          )}
-          
-          {/* Gender detection indicator */}
-          {detectedGender && scanning && (
-            <div className="absolute bottom-4 left-0 right-0 flex justify-center">
-              <span className="bg-white bg-opacity-80 px-3 py-1 rounded-full text-sm font-medium">
-                {detectedGender === "male" ? "Male" : "Female"} detected
-              </span>
-            </div>
           )}
         </div>
         
@@ -305,9 +177,7 @@ const FacialRecognition: React.FC<FacialRecognitionProps> = ({
                 style={{ width: `${progress}%` }}>
               </div>
             </div>
-            <p className="text-center text-gray-600">
-              {processingImage ? "Processing image with AI..." : `Scanning... ${progress}%`}
-            </p>
+            <p className="text-center text-gray-600">Scanning... {progress}%</p>
             <Button 
               variant="outline" 
               className="w-full" 

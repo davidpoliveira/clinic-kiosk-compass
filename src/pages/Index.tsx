@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import KioskLayout, { LayoutType } from "@/components/KioskLayout";
@@ -9,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft, User, Check, ListIcon } from "lucide-react";
 import { Patient } from "@/types/patient";
-import { getRandomPatient, getPatientByGender } from "@/services/patientService";
+import { getRandomPatient } from "@/services/patientService";
 import { useLanguage } from "@/hooks/use-language";
 
 type KioskStep = "welcome" | "identification" | "confirmation" | "completion";
@@ -19,7 +20,6 @@ const Index = () => {
   const [identificationMethod, setIdentificationMethod] = useState<"face" | "cpf">("face");
   const [patient, setPatient] = useState<Patient | null>(null);
   const [layout, setLayout] = useState<LayoutType>("vertical");
-  const [detectedGender, setDetectedGender] = useState<"male" | "female" | null>(null);
   const { t } = useLanguage();
 
   const handleStartIdentification = (method: "face" | "cpf") => {
@@ -27,17 +27,10 @@ const Index = () => {
     setStep("identification");
   };
 
-  const handleIdentificationComplete = (gender?: "male" | "female") => {
-    if (gender) {
-      setDetectedGender(gender);
-      // Get a patient matching the detected gender
-      const matchingPatient = getPatientByGender(gender);
-      setPatient(matchingPatient);
-    } else {
-      // Fallback to random patient for CPF input
-      const randomPatient = getRandomPatient();
-      setPatient(randomPatient);
-    }
+  const handleIdentificationComplete = () => {
+    // Get a random patient for demo purposes
+    const randomPatient = getRandomPatient();
+    setPatient(randomPatient);
     setStep("confirmation");
   };
 
@@ -56,7 +49,6 @@ const Index = () => {
   const handleNewPatient = () => {
     setStep("welcome");
     setPatient(null);
-    setDetectedGender(null);
   };
 
   const renderStepIndicator = () => {
@@ -201,13 +193,6 @@ const Index = () => {
         {step === "confirmation" && patient && (
           <div className="bg-white rounded-lg shadow-md p-6 md:p-8">
             <h2 className="text-2xl font-bold mb-6">{t("confirmIdentity")}</h2>
-            {detectedGender && (
-              <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
-                <p className="text-sm text-blue-800">
-                  {detectedGender === "male" ? t("maleDetected") : t("femaleDetected")}
-                </p>
-              </div>
-            )}
             <PatientConfirmation 
               patient={patient} 
               onConfirm={handleConfirm}

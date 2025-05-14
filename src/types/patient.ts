@@ -18,6 +18,5 @@ export interface Patient {
   healthInsurance: string;
   insuranceNumber: string;
   profileImage?: string;
-  gender?: "male" | "female";
   procedures: Procedure[];
 }
