@@ -62,7 +62,7 @@ export const printPatientTicket = (patient: Patient, language: string = 'pt-BR')
       return;
     }
     
-    // Define receipt content with styling - limited to 15cm width
+    // Define receipt content with styling - limited to 5cm width and 14cm height
     printWindow.document.write(`
       <html>
         <head>
@@ -70,47 +70,49 @@ export const printPatientTicket = (patient: Patient, language: string = 'pt-BR')
           <style>
             @media print {
               @page {
-                size: 15cm auto;
-                margin: 0.5cm;
+                size: 5cm 14cm;
+                margin: 0.2cm;
               }
               body {
-                width: 14cm; /* 15cm minus margins */
-                max-width: 14cm;
+                width: 4.6cm; /* 5cm minus margins */
+                max-width: 4.6cm;
+                max-height: 13.6cm; /* 14cm minus margins */
+                height: auto;
               }
             }
             body {
               font-family: Arial, sans-serif;
-              width: 14cm;
-              max-width: 14cm;
+              width: 4.6cm;
+              max-width: 4.6cm;
               margin: 0 auto;
-              padding: 0.5cm;
-              font-size: 10px;
-              line-height: 1.2;
+              padding: 0.2cm;
+              font-size: 7px;
+              line-height: 1.1;
             }
             .header {
               text-align: center;
               border-bottom: 1px dashed #000;
-              padding-bottom: 5px;
-              margin-bottom: 5px;
+              padding-bottom: 3px;
+              margin-bottom: 3px;
             }
             .logo {
-              max-width: 5cm;
+              max-width: 3cm;
               height: auto;
               margin: 0 auto;
               display: block;
             }
             .receipt-title {
-              font-size: 12px;
+              font-size: 8px;
               font-weight: bold;
-              margin: 5px 0;
+              margin: 3px 0;
               text-align: center;
             }
             .patient-info {
-              margin-bottom: 10px;
+              margin-bottom: 5px;
             }
             .procedure {
-              margin-bottom: 8px;
-              padding-bottom: 4px;
+              margin-bottom: 4px;
+              padding-bottom: 2px;
               border-bottom: 1px dotted #ccc;
             }
             .procedure:last-child {
@@ -118,17 +120,17 @@ export const printPatientTicket = (patient: Patient, language: string = 'pt-BR')
             }
             .footer {
               text-align: center;
-              margin-top: 10px;
+              margin-top: 5px;
               border-top: 1px dashed #000;
-              padding-top: 5px;
-              font-size: 8px;
+              padding-top: 3px;
+              font-size: 6px;
             }
             table {
               width: 100%;
               border-collapse: collapse;
             }
             table td {
-              padding: 2px 0;
+              padding: 1px 0;
               vertical-align: top;
             }
             .label {
@@ -137,10 +139,10 @@ export const printPatientTicket = (patient: Patient, language: string = 'pt-BR')
             }
             .qr-placeholder {
               text-align: center;
-              margin: 8px 0;
-              padding: 8px;
+              margin: 4px 0;
+              padding: 4px;
               border: 1px solid #ccc;
-              font-size: 8px;
+              font-size: 6px;
             }
           </style>
         </head>
