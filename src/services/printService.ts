@@ -62,7 +62,7 @@ export const printPatientTicket = (patient: Patient, language: string = 'pt-BR')
       return;
     }
     
-    // Define receipt content with styling - limited to 5cm width and 14cm height
+    // Define receipt content with styling - limited to 8cm width and 14cm height
     printWindow.document.write(`
       <html>
         <head>
@@ -70,24 +70,24 @@ export const printPatientTicket = (patient: Patient, language: string = 'pt-BR')
           <style>
             @media print {
               @page {
-                size: 5cm 14cm;
+                size: 8cm 14cm;
                 margin: 0.2cm;
               }
               body {
-                width: 4.6cm; /* 5cm minus margins */
-                max-width: 4.6cm;
+                width: 7.6cm; /* 8cm minus margins */
+                max-width: 7.6cm;
                 max-height: 13.6cm; /* 14cm minus margins */
                 height: auto;
               }
             }
             body {
               font-family: Arial, sans-serif;
-              width: 4.6cm;
-              max-width: 4.6cm;
+              width: 7.6cm;
+              max-width: 7.6cm;
               margin: 0 auto;
               padding: 0.2cm;
-              font-size: 7px;
-              line-height: 1.1;
+              font-size: 9px;
+              line-height: 1.2;
             }
             .header {
               text-align: center;
@@ -96,13 +96,13 @@ export const printPatientTicket = (patient: Patient, language: string = 'pt-BR')
               margin-bottom: 3px;
             }
             .logo {
-              max-width: 3cm;
+              max-width: 4cm;
               height: auto;
               margin: 0 auto;
               display: block;
             }
             .receipt-title {
-              font-size: 8px;
+              font-size: 10px;
               font-weight: bold;
               margin: 3px 0;
               text-align: center;
@@ -123,7 +123,7 @@ export const printPatientTicket = (patient: Patient, language: string = 'pt-BR')
               margin-top: 5px;
               border-top: 1px dashed #000;
               padding-top: 3px;
-              font-size: 6px;
+              font-size: 8px;
             }
             table {
               width: 100%;
@@ -142,7 +142,7 @@ export const printPatientTicket = (patient: Patient, language: string = 'pt-BR')
               margin: 4px 0;
               padding: 4px;
               border: 1px solid #ccc;
-              font-size: 6px;
+              font-size: 7px;
             }
           </style>
         </head>
